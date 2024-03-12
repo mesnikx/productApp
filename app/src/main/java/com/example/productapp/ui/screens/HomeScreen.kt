@@ -1,14 +1,17 @@
 package com.example.productapp.ui.screens
 
+import android.content.ClipData.Item
+import android.os.Message
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +20,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.Pager
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.example.productApp.R
+import com.example.productapp.data.model.Product
+import com.example.productapp.data.model.ProductsList
+import com.example.productapp.network.ProductsPagingSource
+import com.example.productapp.ui.ProductCard
 import com.example.productapp.ui.theme.ProductAppTheme
 
 @Composable
@@ -28,10 +39,8 @@ fun HomeScreen(
 ) {
     when (productUiState) {
         is ProductUiState.Loading -> LoadingScreen(modifier = modifier.fillMaxSize())
-        is ProductUiState.Success -> ResultScreen(
-            productUiState.photos, modifier = modifier.fillMaxWidth()
-        )
-        is ProductUiState.Error -> ErrorScreen( modifier = modifier.fillMaxSize())
+        is ProductUiState.Success -> ResultScreen(productUiState.productsList.products)
+        is ProductUiState.Error -> ErrorScreen(modifier = modifier.fillMaxSize())
     }
 }
 
@@ -61,12 +70,33 @@ fun ErrorScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ResultScreen(photos: String, modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
+fun ResultScreen(
+    products: List<Product>,
+    modifier: Modifier = Modifier,
+    pagingSource: ProductsPagingSource
+) {
+    val lazyPagingItems: LazyPagingItems<Product> = pagingSource.collectAsLazyPagingItems()
+    LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier) {
+        items(products) {product ->
+            ProductCard(product)
+        }
+
+    }
+    fun LazyVerticalGridWithPaging(
+        pagingSource: ItemPagingSource
     ) {
-        Text(text = photos)
+        val lazyPagingItems: LazyPagingItems<Item> = pagingSource.collectAsLazyPagingItems()
+
+        LazyVerticalGrid(cells = GridCells.Fixed(2)) {
+            items(lazyPagingItems.itemCount) { index ->
+                val item = lazyPagingItems[index]
+                if (item != null) {
+                    // Display your item in a grid cell
+                } else {
+                    // Handle loading state
+                }
+            }
+        }
     }
 }
 
@@ -83,13 +113,5 @@ fun LoadingScreenPreview() {
 fun ErrorScreenPreview() {
     ProductAppTheme {
         ErrorScreen()
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PhotosGridScreenPreview() {
-    ProductAppTheme {
-        ResultScreen(stringResource(R.string.placeholder_success))
     }
 }
