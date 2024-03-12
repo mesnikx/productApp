@@ -1,7 +1,5 @@
 package com.example.productapp.ui.screens
 
-import android.content.ClipData.Item
-import android.os.Message
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,14 +18,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.paging.Pager
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import com.example.productApp.R
 import com.example.productapp.data.model.Product
-import com.example.productapp.data.model.ProductsList
-import com.example.productapp.network.ProductsPagingSource
 import com.example.productapp.ui.ProductCard
 import com.example.productapp.ui.theme.ProductAppTheme
 
@@ -73,30 +65,12 @@ fun ErrorScreen(modifier: Modifier = Modifier) {
 fun ResultScreen(
     products: List<Product>,
     modifier: Modifier = Modifier,
-    pagingSource: ProductsPagingSource
 ) {
-    val lazyPagingItems: LazyPagingItems<Product> = pagingSource.collectAsLazyPagingItems()
     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier) {
         items(products) {product ->
             ProductCard(product)
         }
 
-    }
-    fun LazyVerticalGridWithPaging(
-        pagingSource: ItemPagingSource
-    ) {
-        val lazyPagingItems: LazyPagingItems<Item> = pagingSource.collectAsLazyPagingItems()
-
-        LazyVerticalGrid(cells = GridCells.Fixed(2)) {
-            items(lazyPagingItems.itemCount) { index ->
-                val item = lazyPagingItems[index]
-                if (item != null) {
-                    // Display your item in a grid cell
-                } else {
-                    // Handle loading state
-                }
-            }
-        }
     }
 }
 

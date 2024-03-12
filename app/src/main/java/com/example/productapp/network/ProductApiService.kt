@@ -23,8 +23,6 @@ interface ProductApiService {
     @GET("products")
 
     suspend fun getProducts(
-        @Query("skip") skip: Int,
-        @Query("limit") limit: Int
     ): ProductsList
 }
 
